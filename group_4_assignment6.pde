@@ -1,80 +1,68 @@
-class Circle {
-  float x, y;      
-  float r;         
-  float vx, vy;    
-  float baseSpeed; 
-  float circleSize;
+Food myFood;
+int sizeX;
+int sizeY;
+ArrayList<Circle> circles;
 
-  Circle(float x, float y, float r) {
-    this.x = x;
-    this.y = y;
-    this.r = r;
-    this.circleSize = PI * pow(r, 2);
-    this.baseSpeed = 6 * pow(.99, circleSize/50); 
-    float angle = random(TWO_PI);
-    this.vx = baseSpeed * cos(angle);
-    this.vy = baseSpeed * sin(angle);
-  }
-
-  void move() {
-    x += vx;
-    y += vy;
-
-    
-    if (x - r <= 0 || x + r >= width) {
-      vx = -vx;
-      // addresses scenarios when food is picked up by border causing it to permenently oscillate
-      if (x - r <= 0){
-        x = r;
-      } else {
-        x = width - r;
-      }
-    }
-    if (y - r <= 0 || y + r >= height) {
-      vy = -vy;
-      if (y - r <= 0) {
-        y = r;
-      } else {
-        y = height -r;
-      }
-    }
-    
-  }
-
-  void growOnTouchingFood(Food food) {
-    for (int i = 0; i < sizeX; i++) {
-      for (int j = 0; j < sizeY; j++) {
-        // circle must engulf the center of the food
-        if (food.food.get(i).get(j) && dist(x, y, i * (width / sizeX) + 2.5 , j * (height / sizeY) + 2.5) <= r) {
-          r = sqrt((circleSize + 50)/PI);
-          circleSize = PI * r * r;
-          println(r);
-          food.food.get(i).set(j, false);
-          food.implemented -= 1; 
-
-          
-          baseSpeed *= 0.99;
-          float speedCurrent = sqrt(vx*vx + vy*vy);
-          float ratio = baseSpeed / speedCurrent;
-          vx *= ratio;
-          vy *= ratio;
-        }
+void setup() {
+  size(1000, 1000);
+  myFood = new Food(width/5, height/5, 80);
+  sizeX = width/5;
+  sizeY = height/5;
+  for (int i = 0; i < sizeX; i++) {
+    for (int j = 0; j < sizeY; j++) {
+      if (myFood.food.get(i).get(j)) {
+        fill(0);
+        rect(i * (width / sizeX), j * (height / sizeY), width / sizeX, height / sizeY);
       }
     }
   }
-  
-  void engulf(float otherSize) {
-    r = sqrt((circleSize + otherSize)/PI);
-    circleSize = PI * r * r;
-    baseSpeed *= pow(.99, 50/otherSize); // adjust speed based on size engulfed
-    float speedCurrent = sqrt(vx*vx + vy*vy);
-    float ratio = baseSpeed / speedCurrent;
-    vx *= ratio;
-    vy *= ratio;
+  circles = new ArrayList<Circle>();
+  for (int i = 0; i < 10; i++) { 
+    circles.add(new Circle(random(width), random(height), random(5, 15)));
   }
-    
-  void display() {
-    fill(150);
-    ellipse(x, y, 2*r, 2*r);
+  // add y'alls circle type after
+}
+
+void draw() {
+ background(255);
+ for (Circle c : circles) {
+   c.growOnTouchingFood(myFood);
+   c.move();
+   c.display();
+ }
+ reDrawFood();
+ 
+ checkForEngulfing();
+}
+
+void reDrawFood(){
+  myFood.update();
+  for (int i = 0; i < sizeX; i++) {
+    for (int j = 0; j < sizeY; j++) {
+      if (myFood.food.get(i).get(j)) {
+        fill(0);
+        rect(i * (width / sizeX), j * (height / sizeY), width / sizeX, height / sizeY);
+      }
+    }
+  }
+}
+
+void checkForEngulfing() {
+  int[] toRemove={};
+  for (int i = circles.size() - 1; i >= 0; i--) {
+    Circle c1 = circles.get(i);
+    for (int j = circles.size() - 1; j >= 0; j--) {
+      if (i == j) continue;
+      
+      Circle c2 = circles.get(j);
+      float d = dist(c1.x, c1.y, c2.x, c2.y);
+      if (c1.r > 1.1 * c2.r && d < 0.9 * c1.r) {
+        toRemove = append(toRemove, j);
+        c1.engulf(c2.circleSize);
+      }
+    }
+  }
+  for (int index : toRemove) {
+    circles.remove(index);
   }
 }
