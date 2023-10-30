@@ -1,0 +1,3 @@
+Narrative: This is a 0-player game that is similar to Agar.io, but it presents some unique twists. Our game has three unique Circles, each implemented by a different member of the group. The ExplodingCircle 'explodes' from its centerpoint once it reaches a predetermined radius after consuming food and other circles.
+
+Jaden: I implemented the ExplodingCircle class as planned in the progress report. Rather than creating a display method, I utilized the display method from the Circle class. Adding the ExplodingCircle to the main class required me to use new keywords such as 'instanceof' in order to add the new 'exploded' circles to the ArrayList of Circles that was being iterated through.
