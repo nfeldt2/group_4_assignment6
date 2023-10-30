@@ -22,6 +22,7 @@ void setup() {
   }
   // add y'alls circle type after
   circles.add(new SplittingCircle(random(width), random(height), 40, false));
+  circles.add(new StrategyCircle(random(width), random(height), random(10, 60)));
 
   ExplodingCircle explodingCircle = new ExplodingCircle(random(width), random(height), 70);
   circles.add(explodingCircle);
