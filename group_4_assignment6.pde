@@ -22,16 +22,32 @@ void setup() {
   }
   // add y'alls circle type after
   circles.add(new SplittingCircle(random(width), random(height), 40, false));
+
+  ExplodingCircle explodingCircle = new ExplodingCircle(random(width), random(height), 70);
+  circles.add(explodingCircle);
 }
 
 void draw() {
  background(255);
  reDrawFood();
+
+ ArrayList<Circle> toAdd = new ArrayList<Circle>();
+ ArrayList<Circle> toRemove = new ArrayList<Circle>();
+
  for (Circle c : circles) {
    c.growOnTouchingFood(myFood);
    c.move();
    c.display();
+
+   if(c instanceof ExplodingCircle && ((ExplodingCircle) c).exploded) {
+     ExplodingCircle temp = (ExplodingCircle) c;
+     toAdd.addAll(temp.getExplodedCircles());
+     toRemove.add(c);
+   }
  }
+
+ circles.removeAll(toRemove);
+ circles.addAll(toAdd);
  
  checkForEngulfing();
 }
